@@ -87,6 +87,11 @@ public extension String {
 // MARK: Language Setting Functions
 
 open class Localize: NSObject {
+    private static var storage = UserDefaults.standard
+    
+    open class func updateStandardStorage(identifier: String) {
+        self.storage = UserDefaults(suiteName: identifier) ?? UserDefaults.standard
+    }
     
     /**
      List available languages
@@ -107,7 +112,7 @@ open class Localize: NSObject {
      - Returns: The current language. String.
      */
     open class func currentLanguage() -> String {
-        if let currentLanguage = UserDefaults.standard.object(forKey: LCLCurrentLanguageKey) as? String {
+        if let currentLanguage = storage.object(forKey: LCLCurrentLanguageKey) as? String {
             return currentLanguage
         }
         return defaultLanguage()
@@ -118,7 +123,7 @@ open class Localize: NSObject {
      - Returns: The current language. String.
      */
     open class func doesLanguageSetup() -> Bool {
-        if let _ = UserDefaults.standard.object(forKey: LCLCurrentLanguageKey) as? String {
+        if let _ = storage.object(forKey: LCLCurrentLanguageKey) as? String {
             return true
         }
         return false
@@ -131,8 +136,8 @@ open class Localize: NSObject {
     open class func setCurrentLanguage(_ language: String) {
         let selectedLanguage = availableLanguages().contains(language) ? language : defaultLanguage()
         if (selectedLanguage != currentLanguage()){
-            UserDefaults.standard.set(selectedLanguage, forKey: LCLCurrentLanguageKey)
-            UserDefaults.standard.synchronize()
+            storage.set(selectedLanguage, forKey: LCLCurrentLanguageKey)
+            storage.synchronize()
             NotificationCenter.default.post(name: Notification.Name(rawValue: LCLLanguageChangeNotification), object: nil)
         }
     }
